@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Happy National Girlfriend's Day!</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #ffdde1 0%, #ee9ca7 100%);
+      color: #4a4a4a;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+    }
+
+    /* Container for falling flowers */
+    #flower-fall-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 9999;
+      overflow: hidden;
+    }
+
+    /* Individual falling flower element */
+    .falling-flower {
+      position: absolute;
+      top: -40px;
+      user-select: none;
+      animation: fallAndRotate linear forwards;
+    }
+
+    @keyframes fallAndRotate {
+      0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(105vh) rotate(360deg);
+        opacity: 0;
+      }
+    }
+
+    /* Image Modal (Light-box Zoom) */
+    .image-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(5px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+      cursor: pointer;
+    }
+
+    .image-modal.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .image-modal img {
+      max-width: 90vw;
+      max-height: 85vh;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      border: 4px solid #fff;
+      transform: scale(0.8);
+      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .image-modal.active img {
+      transform: scale(1);
+    }
+
+    /* Floating Music Control Button */
+    .music-btn {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(5px);
+      border: 1px solid #ee9ca7;
+      padding: 10px 16px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      color: #d63384;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
+      z-index: 1000;
+    }
+
+    .music-btn:hover {
+      background: #ffffff;
+      transform: scale(1.05);
+    }
+
+    /* Main Card Container */
+    .card {
+      background: rgba(255, 255, 255, 0.92);
+      border-radius: 20px;
+      padding: 40px 30px;
+      max-width: 600px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      margin-top: 20px;
+      position: relative;
+    }
+
+    /* Page Visibility Settings */
+    .page {
+      display: none;
+      animation: fadeIn 0.5s ease-in-out;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h1 {
+      color: #d63384;
+      font-size: 2.2rem;
+      margin-bottom: 15px;
+    }
+
+    .subtitle {
+      font-size: 1.1rem;
+      color: #6c757d;
+      margin-bottom: 25px;
+    }
+
+    /* Photo Frame Styling */
+    .photo-frame {
+      width: 100%;
+      max-width: 320px;
+      height: 320px;
+      margin: 0 auto 25px auto;
+      border-radius: 15px;
+      overflow: hidden;
+      border: 5px solid #fff;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+      cursor: pointer;
+    }
+
+    .photo-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* Message Styling */
+    .message {
+      font-size: 1.05rem;
+      line-height: 1.8;
+      color: #444;
+      white-space: pre-line;
+      text-align: left;
+      background: #fff5f7;
+      padding: 25px;
+      border-radius: 12px;
+      border-left: 4px solid #d63384;
+      margin-bottom: 25px;
+    }
+
+    .heart {
+      color: #e63946;
+      display: inline-block;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+
+    /* Navigation Buttons Layout */
+    .nav-buttons {
+      display: flex;
+      justify-content: space-between;
+      gap: 15px;
+      margin-top: 25px;
+    }
+
+    .btn-next {
+      background: #d63384;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 25px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(214, 51, 132, 0.3);
+      transition: all 0.3s ease;
+      margin-left: auto;
+    }
+
+    .btn-next:hover {
+      background: #c22575;
+      transform: translateY(-2px);
+    }
+
+    .btn-back {
+      background: #f8f9fa;
+      color: #6c757d;
+      border: 1px solid #ced4da;
+      padding: 12px 24px;
+      border-radius: 25px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-back:hover {
+      background: #e2e6ea;
+      color: #333;
+    }
+
+    /* Flower Stage for Page 2 */
+    .flower-container {
+      position: relative;
+      width: 100%;
+      max-width: 450px;
+      height: 380px;
+      margin: 20px auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .bloom-btn {
+      position: relative;
+      z-index: 10;
+      background: #d63384;
+      color: white;
+      border: none;
+      padding: 14px 28px;
+      border-radius: 30px;
+      font-size: 1.05rem;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 6px 18px rgba(214, 51, 132, 0.4);
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .bloom-gallery {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    .petal-card {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 110px;
+      padding: 5px;
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+      transform-origin: center center;
+      transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      transform: translate(-50%, -50%) scale(0);
+      opacity: 0;
+      visibility: hidden;
+      cursor: pointer;
+    }
+
+    .petal-card img {
+      width: 100%;
+      height: 90px;
+      object-fit: cover;
+      border-radius: 8px;
+      display: block;
+    }
+
+    .petal-caption {
+      display: block;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: #d63384;
+      margin-top: 4px;
+      text-align: center;
+    }
+
+    .bloom-gallery.bloomed .petal-1 { transform: translate(-140%, -130%) rotate(-8deg) scale(1); opacity: 1; visibility: visible; pointer-events: auto; }
+    .bloom-gallery.bloomed .petal-2 { transform: translate(40%, -130%) rotate(8deg) scale(1); opacity: 1; visibility: visible; pointer-events: auto; }
+    .bloom-gallery.bloomed .petal-3 { transform: translate(-140%, 30%) rotate(6deg) scale(1); opacity: 1; visibility: visible; pointer-events: auto; }
+    .bloom-gallery.bloomed .petal-4 { transform: translate(40%, 30%) rotate(-6deg) scale(1); opacity: 1; visibility: visible; pointer-events: auto; }
+
+    /* Reasons List for Page 3 */
+    .reasons-list {
+      list-style: none;
+      text-align: left;
+      padding: 0;
+    }
+
+    .reasons-list li {
+      background: #fff5f7;
+      margin-bottom: 12px;
+      padding: 15px;
+      border-radius: 10px;
+      border-left: 4px solid #d63384;
+      font-size: 1rem;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Container for falling flowers -->
+  <div id="flower-fall-container"></div>
+
+  <!-- Zoom Image Modal -->
+  <div id="image-modal" class="image-modal" onclick="closeModal()">
+    <img id="modal-img" src="" alt="Enlarged photo">
+  </div>
+
+  <!-- Music Control Button -->
+  <button id="music-toggle" class="music-btn">🎵 Play Music</button>
+
+  <!-- Audio Source -->
+  <audio id="bg-music" loop preload="auto">
+    <source src="Christina Perri - A Thousand Years [Official Music Video].mp3" type="audio/mpeg">
+  </audio>
+
+  <div class="card">
+
+    <!-- PAGE 1: Welcome & Poem -->
+    <div id="page1" class="page active">
+      <h1>Happy National Girlfriend's Day!<span class="heart">♥</span></h1>
+      <p class="subtitle">To the most incredible person in my world</p>
+
+      <div class="photo-frame" onclick="openModal('pic7.jpg')">
+        <img src="pic7.jpg" alt="Our Photo 1">
+      </div>
+
+      <div class="message">
+Happy National Girlfriend's Day to the extraordinary woman who has seamlessly woven herself into the very fabric of my existence, completely transforming my perception of love, peace, and partnership from the exact moment you stepped into my life. Thank you for being my gentlest safe haven through life's unpredictable storms, my unwavering anchor when the world feels overwhelming, my most passionate advocate in every dream I chase, and the serene sanctuary I look forward to returning to at the end of every single day. The depth of your empathy, the effortless grace with which you handle every situation, and the radiant, genuine warmth of your soul continue to leave me in absolute awe, constantly reminding me how extraordinarily rare it is to find someone who understands me so completely, even in total silence. Every quiet morning we share, every late-night conversation where time seems to stand still, every burst of spontaneous laughter, and every unscripted moment in between has built a life together that I treasure more than words could ever hope to measure. You are not simply my girlfriend; you are my ultimate best friend, my greatest confidante, the keeper of my heart, and the indisputable love of my life, and I make a quiet, permanent promise today—and through all the days that lie ahead—to endlessly cherish your heart, fiercely protect your happiness, honor every one of your aspirations, and ensure that you never have to doubt for even a single second just how profoundly, unconditionally, and infinitely you are adored. ♥
+      </div>
+
+      <div class="nav-buttons" style="justify-content: flex-end;">
+        <button class="btn-next" onclick="nextPage(2)">Next ➔</button>
+      </div>
+    </div>
+	
+    <!-- PAGE 2: My Favourite Flower Blooming Gallery -->
+    <div id="page2" class="page">
+      <h1>My Favourite Flower <span class="heart">♥</span></h1>
+      
+      <!-- Flower Stage -->
+      <div class="flower-container">
+        <!-- Central Interactive Button -->
+        <button class="bloom-btn" onclick="toggleBloom()">
+          <span class="bloom-icon">🌸</span>
+          <span id="bloomText">Bloom Memories</span>
+        </button>
+
+        <!-- 4 Blooming Photo Cards -->
+        <div class="bloom-gallery" id="bloomGallery">
+          <div class="petal-card petal-1" onclick="openModal('pic8.jpg')">
+            <img src="pic8.jpg" alt="Photo">
+            <span class="petal-caption">Memory 1 ♥</span>
+          </div>
+
+          <div class="petal-card petal-2" onclick="openModal('pic9.jpg')">
+            <img src="pic9.jpg" alt="Photo">
+            <span class="petal-caption">Memory 2 🌹</span>
+          </div>
+
+          <div class="petal-card petal-3" onclick="openModal('pic10.jpg')">
+            <img src="pic10.jpg" alt="Photo">
+            <span class="petal-caption">Memory 3 ✨</span>
+          </div>
+
+          <div class="petal-card petal-4" onclick="openModal('pic11.jpg')">
+            <img src="pic11.jpg" alt="Photo">
+            <span class="petal-caption">Memory 4 💖</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation Buttons -->
+      <div class="nav-buttons">
+        <button class="btn-back" onclick="nextPage(1)">⬅ Back</button>
+        <button class="btn-next" onclick="nextPage(3)">Next ➔</button>
+      </div>
+    </div>
+
+    <!-- PAGE 3: Reasons Why I Love You -->
+    <div id="page3" class="page">
+      <h1>Why You Mean Everything <span class="heart">♥</span></h1>
+      <p class="subtitle">Just a few of the endless reasons I adore you</p>
+
+      <ul class="reasons-list">
+        <li>✨ <strong> Home :</strong> Home isn't a place, it's you 🌹 .</li>
+        <li>😊 <strong> As a Person :</strong> My favorite person, today and every day 💖.</li>
+        <li>🤝 <strong> My Escape place :</strong> "My quiet place in a noisy world ♥" .</li>
+        <li>💖 <strong>Simply You:</strong> "I tried putting into words why you mean so much to me, but the truth is simple: you make my world better just by existing in it. You're the first person I want to share good news with, the one I look for in a crowded room, and my safest comfort when things get heavy. Thank you for being my favorite person, my best friend, and my whole heart.".</li>
+      </ul>
+
+      <div class="nav-buttons">
+        <button class="btn-back" onclick="nextPage(2)">⬅ Back</button>
+        <button class="btn-next" onclick="nextPage(4)">Next ➔</button>
+      </div>
+    </div>
+
+    <!-- PAGE 4: Special Surprise / Date Invitation -->
+    <div id="page4" class="page">
+      <h1>One Final Surprise! <span class="heart">♥</span></h1>
+      <p class="subtitle">A special place reserved just for you in my heart </p>
+
+      <div class="photo-frame" onclick="openModal('us.jpeg')">
+        <img src="us.jpeg" alt="Our Photo 2">
+      </div>
+
+      <div class="message">
+Terima kasih sebab sentiasa ada dengan saya, dari saat indah hinggalah ke waktu-waktu yang sukar. Saya nak awak tahu yang awak sangat berharga dalam hidup saya, lebih daripada apa yang mampu saya luahkan dengan kata-kata. Kehadiran awak bawa ketenangan yang tak pernah saya rasa sebelum ni, dan setiap kali saya rasa hilang arah, ingatkan awak dah cukup untuk buat saya rasa kuat balik.
+      
+Kalau dunia ini bukan tempat kita , maka percayalah akan ku bina satu dunia yang baharu untuk kita sahaja .
+      
+Jika kamu hilang hala tuju, maka percayalah akan ku bimbing jemarimu dan menjadi sinar yang menuntut jalanmu .
+      
+Jika kehilangan kamu, akan ku cari di seluruh pelusuk dunia sehingga kamu kembali selamat dalam genggamanku."
+      </div>
+
+      <div class="nav-buttons">
+        <button class="btn-back" onclick="nextPage(3)">⬅ Back</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // Image Enlargement Modal Logic
+    function openModal(imageSrc) {
+      const modal = document.getElementById('image-modal');
+      const modalImg = document.getElementById('modal-img');
+      modalImg.src = imageSrc;
+      modal.classList.add('active');
+    }
+
+    function closeModal() {
+      const modal = document.getElementById('image-modal');
+      modal.classList.remove('active');
+    }
+
+    // Music Auto-Play & Control Logic
+    const audio = document.getElementById('bg-music');
+    const toggleBtn = document.getElementById('music-toggle');
+    audio.volume = 0.5;
+
+    toggleBtn.addEventListener('click', () => {
+      if (audio.paused) {
+        audio.play();
+        toggleBtn.textContent = '⏸ Pause Music';
+      } else {
+        audio.pause();
+        toggleBtn.textContent = '🎵 Play Music';
+      }
+    });
+
+    window.addEventListener('click', (e) => {
+      if (e.target !== toggleBtn && !e.target.closest('#image-modal') && audio.paused) {
+        audio.play();
+        toggleBtn.textContent = '⏸ Pause Music';
+      }
+    }, { once: true });
+
+    // Page Switching Logic + Burst of extra flowers
+    function nextPage(pageNumber) {
+      // Spawn extra flowers on page change
+      spawnFlowers(20);
+
+      // Switch active page
+      document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+      const targetPage = document.getElementById('page' + pageNumber);
+      if (targetPage) {
+        targetPage.classList.add('active');
+      }
+    }
+
+    // Helper to spawn individual flower element
+    function spawnFlowers(count) {
+      const container = document.getElementById('flower-fall-container');
+      if (!container) return;
+
+      const flowers = ['🌸', '🌺', '🌷', '🌹', '✨'];
+
+      for (let i = 0; i < count; i++) {
+        const flower = document.createElement('div');
+        flower.className = 'falling-flower';
+        flower.textContent = flowers[Math.floor(Math.random() * flowers.length)];
+        flower.style.left = Math.random() * 100 + 'vw';
+        flower.style.fontSize = (Math.random() * 1.2 + 1) + 'rem';
+        
+        const duration = Math.random() * 2 + 2.5;
+        const delay = Math.random() * 0.5;
+        
+        flower.style.animationDuration = duration + 's';
+        flower.style.animationDelay = delay + 's';
+
+        container.appendChild(flower);
+
+        setTimeout(() => {
+          flower.remove();
+        }, (duration + delay) * 1000);
+      }
+    }
+
+    // Continuous flower rain loop
+    setInterval(() => {
+      spawnFlowers(1);
+    }, 300);
+
+    // Initial batch when page loads
+    window.addEventListener('DOMContentLoaded', () => {
+      spawnFlowers(15);
+    });
+
+    // Bloom Toggle Logic for Page 2
+    function toggleBloom() {
+      const gallery = document.getElementById('bloomGallery');
+      const btnText = document.getElementById('bloomText');
+      
+      if (gallery) {
+        gallery.classList.toggle('bloomed');
+      }
+
+      if (btnText && gallery) {
+        if (gallery.classList.contains('bloomed')) {
+          btnText.textContent = "Close Bloom";
+        } else {
+          btnText.textContent = "Bloom Memories";
+        }
+      }
+    }
+  </script>
+</body>
+</html>
